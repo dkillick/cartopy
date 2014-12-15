@@ -262,7 +262,14 @@ class Downloader(object):
 
         """
         warnings.warn('Downloading: {}'.format(url), DownloadWarning)
-        return urlopen(url)
+        result = None
+        try:
+            result = urlopen(url)
+        # This exception will need to be tightened in case urllib2 isn't available.
+        except urllib2.URLError:
+            import requests
+            results = requests.get(url)
+        return result
 
     @staticmethod
     def from_config(specification, config_dict=None):
