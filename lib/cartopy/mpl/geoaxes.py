@@ -32,6 +32,7 @@ import weakref
 import matplotlib as mpl
 import matplotlib.artist
 import matplotlib.axes
+from matplotlib.colors import colorConverter
 from matplotlib.image import imread
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -265,6 +266,9 @@ class GeoAxes(matplotlib.axes.Axes):
         self.background_patch = None
         """The patch that provides the filled background of the projection."""
 
+        facecolor = kwargs.pop('facecolor', 'w')
+        self.facecolor = colorConverter.to_rgba(facecolor)
+
         super(GeoAxes, self).__init__(*args, **kwargs)
         self._gridliners = []
         self.img_factories = []
@@ -405,7 +409,7 @@ class GeoAxes(matplotlib.axes.Axes):
         return u'%.4g, %.4g (%f\u00b0%s, %f\u00b0%s)' % (x, y, abs(lat),
                                                          ns, abs(lon), ew)
 
-    def coastlines(self, resolution='110m', color='black', **kwargs):
+    def coastlines(self, resolution='110m', color=None, **kwargs):
         """
         Adds coastal **outlines** to the current axes from the Natural Earth
         "coastline" shapefile collection.
@@ -424,6 +428,8 @@ class GeoAxes(matplotlib.axes.Axes):
             This should be resolved transparently by v0.5.
 
         """
+        if color is None:
+            color == 'black' if np.mean(self.facecolor[:-1])>0.25 else 'white'
         kwargs['edgecolor'] = color
         kwargs['facecolor'] = 'none'
         feature = cartopy.feature.NaturalEarthFeature('physical', 'coastline',
@@ -1232,7 +1238,7 @@ class GeoAxes(matplotlib.axes.Axes):
 
         if self.background_patch is None:
             background = matplotlib.patches.PathPatch(path, edgecolor='none',
-                                                      facecolor='white',
+                                                      facecolor=self.facecolor,
                                                       zorder=-1, clip_on=False,
                                                       transform=transform)
         else:
