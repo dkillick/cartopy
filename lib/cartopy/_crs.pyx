@@ -202,8 +202,23 @@ cdef class CRS:
         """
         self.__init__(self, **state)
 
+    def __repr__(self):
+        name = self.__class__.__name__
+        str_params = {'lat_0': 'central_latitude',
+                      'lon_0': 'central_longitude',
+                      'h': 'height',
+                      'ellps': 'ellipse',
+                      'proj': 'projection'}
+        str_items_dict = {}
+        for param_name, param_desc in str_params.items():
+            proj4_param = self.proj4_params.get(param_name, None)
+            if proj4_param is not None:
+                str_items_dict[param_desc] = proj4_param
+        params_str = ', '.join(['{}={}'.format(k, v)
+                                for k, v in str_items_dict.items()])
+        return '<{}: {}>'.format(name, params_str)
+
     # TODO
-    #def __str__
     #def _geod(self): # to return the pyproj.Geod
 
     def _as_mpl_transform(self, axes=None):

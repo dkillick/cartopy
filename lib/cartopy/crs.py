@@ -146,6 +146,13 @@ class Projection(six.with_metaclass(ABCMeta, CRS)):
             domain = self._domain = sgeom.Polygon(self.boundary)
         return domain
 
+    def _repr_html_(self):
+        import matplotlib.pyplot as plt
+        ax = plt.axes(projection=self)
+        ax.set_global()
+        ax.coastlines('110m')
+        plt.show()
+
     def _as_mpl_axes(self):
         import cartopy.mpl.geoaxes as geoaxes
         return geoaxes.GeoAxes, {'map_projection': self}
